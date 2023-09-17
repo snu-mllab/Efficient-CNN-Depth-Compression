@@ -1,5 +1,5 @@
 # Efficient-CNN-Depth-Compression
-Official PyTorch implementation of **"[Efficient Latency-Aware CNN Depth Compression via Two-Stage Dynamic Programming](https://arxiv.org/abs/2301.12187)"**, published at **ICML'23**
+Official PyTorch implementation of **"[Efficient Latency-Aware CNN Depth Compression via Two-Stage Dynamic Programming](https://arxiv.org/abs/2301.12187)"**, published at **ICML'23** (Blog post at **[this link](https://jusjinuk.me/2023/09/11/efficient-cnn-depth-compression.html)**).
 
 ![image samples](asset/title.png)
 
@@ -108,6 +108,7 @@ It is worth noting that we finetune the network after fixing the $A$ and $S$, an
 Here, we provide the tables necessary to obtain $A$ and $S$ (ImageNet dataset).
 Precisely, we provide
 - Optimal time table $T_{\text{opt}}$ (result of soving Algorithm 1 in Section 4):
+    - Provided under `utils/table/` directory.
 - Normalized & extended importance table $I_{\text{opt}}$ (result of soving Algorithm 3 in Appendix B):
     - Link : [download](https://www.dropbox.com/scl/fi/bcezesccnvf36pgrostxx/exp_result.zip?dl=1&rlkey=rn6sah9gokci2ktaley4tb9el)
     - Download the tables from the link and unzip at the root.
@@ -182,7 +183,7 @@ We provide the examples of finetuning commands for each network in the below.
   --epochs 180 \
   -c exp_result/dp_ft/mb_v2_w1.0_ie1_ild_cos_n_single_a_1.6/p20.0_tl25.0 \
   -f checkpoint.pth \
-  --act-path exp_result/dp_solve/mb_v2_w1.0_ie1_ild_cos_n_single_a_1.6/p20.0_tl25.0 \
+  --act-path exp_result/dp_solve/mb_v2_w1.0_ie1_ild_cos_n_single_a_1.6/p20.0_tl25.0/checkpoint.pth \
   --pretrain pretrained/mobilenetv2_100_ra-b33bc2c4.pth \
   --lr 0.05 \
   --aug False
@@ -197,7 +198,7 @@ We provide the examples of finetuning commands for each network in the below.
   --epochs 180 \
   -c exp_result/dp_ft/mb_v2_w1.4_ie1_ild_cos_n_single_a_1.2/p20.0_tl27.0 \
   -f checkpoint.pth \
-  --act-path exp_result/dp_solve/mb_v2_w1.0_ie1_ild_cos_n_single_a_1.6/p20.0_tl27.0 \
+  --act-path exp_result/dp_solve/mb_v2_w1.0_ie1_ild_cos_n_single_a_1.6/p20.0_tl27.0/checkpoint.pth \
   --pretrain pretrained/mobilenetv2_140_ra-21a4e913.pth \
   --lr 0.1 \
   --aug True
@@ -211,7 +212,7 @@ We provide the examples of finetuning commands for each network in the below.
   --epochs 20 \
   -c exp_result/dp_ft/vgg19_ie1_ild_cos_n_single_a_1.4_no_trt/p10.0_tl160.0 \
   -f checkpoint.pth \
-  --act-path exp_result/dp_solve/vgg19_ie1_ild_cos_n_single_a_1.4_no_trt/p10.0_tl160.0 \
+  --act-path exp_result/dp_solve/vgg19_ie1_ild_cos_n_single_a_1.4_no_trt/p10.0_tl160.0/checkpoint.pth \
   --pretrain pretrained/vgg19_bn-c79401a0.pth \
   --lr 0.01 \
   --aug False
@@ -255,8 +256,37 @@ We provide the examples of merging commands for each network in the below (you m
   -f checkpoint_ft_lr0.01.pth
   ```
 After it completes, you can find the merged weights in the `checkpoint_ft_lr{$LR}_merged.pth` file.
-- You can evaluate the accuracy and measure inference time using the commands in [this bullet](#2). Make sure to adjust `-c` and `-f` option to a proper path.
 
+You can evaluate the accuracy and measure inference time using the commands in [this bullet](#2). 
+Make sure to adjust `-c` and `-f` option to a proper path. 
+To illustrate, following commands can be used to evaluate each merged network.
+- **MobileNetV2-1.0** (evaluating the network merged with $T_0$=25.0)
+  - Evaluating the accuracy <br />(`exp_result/dp_ft/mb_v2_w1.0_ie1_ild_cos_n_single_a_1.6/p20.0_tl25.0/checkpoint_ft_lr0.05_merged.pth`)
+    ```
+    python exps/main.py -a learn_mobilenet_v2 --width-mult 1.0 -d {$IMAGENET_DIR} -m eval -c exp_result/dp_ft/mb_v2_w1.0_ie1_ild_cos_n_single_a_1.6/p20.0_tl25.0/ -f checkpoint_ft_lr0.05_merged.pth
+    ```
+  - Measuring the inference time <br />(`exp_result/dp_ft/mb_v2_w1.0_ie1_ild_cos_n_single_a_1.6/p20.0_tl25.0/checkpoint_ft_lr0.05_merged.pth`)
+    ```
+    python exps/inference_trt.py -a learn_mobilenet_v2 --width-mult 1.0 -c exp_result/dp_ft/mb_v2_w1.0_ie1_ild_cos_n_single_a_1.6/p20.0_tl25.0/ -f checkpoint_ft_lr0.05_merged.pth --nclass 1000 --trt False
+    ```
+- **MobileNetV2-1.4** (evaluating the network merged with $T_0$=27.0)
+  - Evaluating the accuracy <br />(`exp_result/dp_ft/mb_v2_w1.4_ie1_ild_cos_n_single_a_1.2/p20.0_tl27.0_aug/checkpoint_ft_lr0.1_merged.pth`)
+    ```
+    python exps/main.py -a learn_mobilenet_v2 --width-mult 1.4 -d {$IMAGENET_DIR} -m eval -c exp_result/dp_ft/mb_v2_w1.4_ie1_ild_cos_n_single_a_1.2/p20.0_tl27.0_aug/ -f checkpoint_ft_lr0.1_merged.pth
+    ```
+  - Measuring the inference time <br />(`exp_result/dp_ft/mb_v2_w1.4_ie1_ild_cos_n_single_a_1.2/p20.0_tl27.0_aug/checkpoint_ft_lr0.1_merged.pth`)
+    ```
+    python exps/inference_trt.py -a learn_mobilenet_v2 --width-mult 1.4 -c exp_result/dp_ft/mb_v2_w1.4_ie1_ild_cos_n_single_a_1.2/p20.0_tl27.0_aug/ -f checkpoint_ft_lr0.1_merged.pth --nclass 1000 --trt False
+    ```
+- **VGG19** (merging $T_0$=160.0)
+  - Evaluating the accuracy <br />(`exp_result/dp_ft/vgg19_ie1_ild_cos_n_single_a_1.4_no_trt/p10.0_tl160.0/checkpoint_ft_lr0.01_merged.pth`)
+    ```
+    python exps/main.py -a learn_vgg19 -d {$IMAGENET_DIR} -m eval -c exp_result/dp_ft/vgg19_ie1_ild_cos_n_single_a_1.4_no_trt/p10.0_tl160.0/ -f checkpoint_ft_lr0.01_merged.pth
+    ```
+  - Measuring the inference time <br />(`exp_result/dp_ft/vgg19_ie1_ild_cos_n_single_a_1.4_no_trt/p10.0_tl160.0/checkpoint_ft_lr0.01_merged.pth`)
+    ```
+    python exps/inference_trt.py -a learn_vgg19 -c exp_result/dp_ft/vgg19_ie1_ild_cos_n_single_a_1.4_no_trt/p10.0_tl160.0/ -f checkpoint_ft_lr0.01_merged.pth --nclass 1000 --trt False
+    ```
 
 
 ## Citation

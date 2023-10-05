@@ -124,7 +124,7 @@ After you unzip the importance tables, you will have necessary files as follows:
 |  | VGG19 | `exp_result/dp_imp/vgg19_ie1_ild_cos/ext_importance_s_val_acc_n_single_a_1.4.csv` |  
 
 
-### Obtaining the optimal sets ($A$ and $S$)
+### Obtaining the optimal sets (A and S)
 To obtain the optimal sets ($A$ and $S$) for different neural networks, execute the following commands. 
 Make sure to specify the time budget ($T_0$) by using the `--time-limit` option in the command.
 - **MobileNetV2-1.0**

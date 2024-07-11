@@ -1,5 +1,5 @@
 # Efficient-CNN-Depth-Compression
-Official PyTorch implementation of **"[Efficient Latency-Aware CNN Depth Compression via Two-Stage Dynamic Programming](https://arxiv.org/abs/2301.12187)"**, published at **ICML'23** (Blog post at **[this link](https://jusjinuk.me/2023/09/11/efficient-cnn-depth-compression.html)**).
+Official PyTorch implementation of **"[Efficient Latency-Aware CNN Depth Compression via Two-Stage Dynamic Programming](https://arxiv.org/abs/2301.12187)"**, published at **ICML'23** (Blog post at **[this link](https://jusjinuk.me/blog/efficient-cnn-depth-compression/)**).
 
 ![image samples](asset/title.png)
 
